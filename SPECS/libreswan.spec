@@ -39,6 +39,7 @@ Source11: https://download.libreswan.org/cavs/ikev1_psk.fax.bz2
 Source12: https://download.libreswan.org/cavs/ikev2.fax.bz2
 %endif
 BuildRequires: bison flex redhat-rpm-config pkgconfig
+BuildRequires: gcc
 BuildRequires: systemd
 Requires(post): coreutils bash systemd
 Requires(preun): systemd
