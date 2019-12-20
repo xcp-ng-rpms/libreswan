@@ -31,7 +31,7 @@ Name: libreswan
 Summary: IPsec implementation with IKEv1 and IKEv2 keying protocols
 # version is generated in the release script
 Version: 3.26
-Release: %{?prever:0.}1%{?prever:.%{prever}}%{?dist}
+Release: %{?prever:0.}1.1%{?prever:.%{prever}}%{?dist}
 License: GPLv2
 Url: https://libreswan.org/
 Source0: https://download.libreswan.org/%{?prever:with_development/}%{name}-%{version}%{?prever}.tar.gz
@@ -211,6 +211,9 @@ bunzip2 *.fax.bz2
 %{_libdir}/fipscheck/pluto.hmac
 
 %changelog
+* Fri Dec 20 2019 Samuel Verschelde <stormi-xcp@ylix.fr> - 3.26-1.1
+- Rebuild for XCP-ng 8.1
+
 * Mon Sep 17 2018 Paul Wouters <pwouters@redhat.com> - 3.26-1
 - Resolves: rhbz#1566574 Rebase to libreswan 3.26
 - Resolves: rhbz#1527037 libreswan IPSEC implementation: should follow the policies of system-wide crypto policy
