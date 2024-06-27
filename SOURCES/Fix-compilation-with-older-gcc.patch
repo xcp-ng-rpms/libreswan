@@ -1,0 +1,56 @@
+From ac8a5f984aa4492ff22cd7ee91cdc668ce9eb811 Mon Sep 17 00:00:00 2001
+From: David Morel <david.morel@vates.tech>
+Date: Thu, 27 Jun 2024 10:47:50 +0200
+Subject: [PATCH] Fix compilation with older gcc
+
+There is a known bug in older gcc with zero initialization using {0}
+when the struct you try to init has an array somewhere:
+https://gcc.gnu.org/bugzilla/show_bug.cgi?id=53119
+
+Suggested solution is to add more braces, but here, this leads to triple
+or quadruple braces, and I think in this case you only properly
+initialize the array (given it is a bug, I'm not sure).
+
+The most portable workaround would be to create a static object for each
+variable type where this is needed, and use it as to init variable.
+
+I went with the memset solution, which only portability drawback as far
+as I can see, is the init of floats on some platform, where zeroed float
+can actually not be 0. On x86_64 this is not the case, and I haven't
+seen any float in these struct. It feels more readable to me this way.
+---
+ programs/pluto/kernel_iface.c | 3 ++-
+ programs/pluto/kernel_xfrm.c  | 3 ++-
+ 2 files changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/programs/pluto/kernel_iface.c b/programs/pluto/kernel_iface.c
+index 4fb18a9..2c217d2 100644
+--- a/programs/pluto/kernel_iface.c
++++ b/programs/pluto/kernel_iface.c
+@@ -219,7 +219,8 @@ struct raw_iface *find_raw_ifaces(const struct ip_info *afi, struct logger *logg
+ 		 * Find out stuff about this interface.  See
+ 		 * netdevice(7) or netintro(4).
+ 		 */
+-		struct ifreq auxinfo = {0};
++		struct ifreq auxinfo;
++		memset(&auxinfo, 0, sizeof(auxinfo));
+ 		passert(sizeof(auxinfo.ifr_name) == sizeof(ifr->ifr_name)); /* duh! */
+ 		memcpy(auxinfo.ifr_name, ifr->ifr_name, IFNAMSIZ);
+ 		if (ioctl(udp_sock, SIOCGIFFLAGS, &auxinfo) == -1) {
+diff --git a/programs/pluto/kernel_xfrm.c b/programs/pluto/kernel_xfrm.c
+index cfcfb5a..56a1674 100644
+--- a/programs/pluto/kernel_xfrm.c
++++ b/programs/pluto/kernel_xfrm.c
+@@ -703,7 +703,8 @@ static bool xfrm_raw_policy(enum kernel_policy_op op,
+ 	if (kernel_policy != NULL &&
+ 	    !(op == KERNEL_POLICY_OP_DELETE && dir == KERNEL_POLICY_DIR_OUTBOUND) &&
+ 	    !(op == KERNEL_POLICY_OP_DELETE && dir == KERNEL_POLICY_DIR_INBOUND)) {
+-		struct xfrm_user_tmpl tmpls[4] = {0};
++		struct xfrm_user_tmpl tmpls[4];
++		memset(tmpls, 0, sizeof(tmpls));
+ 
+ 		/* remember; kernel_policy.rule[] is 1 based */
+ 		passert(kernel_policy->nr_rules <= (int)elemsof(tmpls));
+-- 
+2.45.1
+

@@ -1,0 +1,85 @@
+From 83487373fdd77437e51cfccd41532e270e279e05 Mon Sep 17 00:00:00 2001
+From: rpm-build <rpm-build>
+Date: Tue, 10 Jan 2023 00:11:26 +0900
+Subject: [PATCH] libreswan-4.3-maintain-different-v1v2-split.patch
+
+---
+ configs/d.ipsec.conf/ikev2.xml | 14 +++++++-------
+ lib/libipsecconf/confread.c    |  8 +++++++-
+ programs/whack/whack.c         |  4 ++--
+ 3 files changed, 16 insertions(+), 10 deletions(-)
+
+diff --git a/configs/d.ipsec.conf/ikev2.xml b/configs/d.ipsec.conf/ikev2.xml
+index 3d03825..285db1b 100644
+--- a/configs/d.ipsec.conf/ikev2.xml
++++ b/configs/d.ipsec.conf/ikev2.xml
+@@ -2,14 +2,14 @@
+   <term><emphasis remap='B'>ikev2</emphasis></term>
+   <listitem>
+ <para>Whether to use IKEv2 (RFC 7296) or IKEv1 (RFC 4301).
+-Currently the accepted values are <emphasis remap='B'>yes</emphasis> (the default),
+-signifying only IKEv2 is accepted, or <emphasis remap='B'>no</emphasis>,
++Currently the accepted values are <emphasis remap='B'>insist</emphasis> (the default),
++signifying only IKEv2 is accepted, or <emphasis remap='B'>no</emphasis> (or <emphasis remap='B'>never</emphasis>),
+ signifying only IKEv1 is accepted. Previous versions allowed the keywords
+-<emphasis remap='B'>propose</emphasis> or <emphasis remap='B'>permit</emphasis>
+-that would allow either IKEv1 or IKEv2, but this is no longer supported. The
+-permit option is interpreted as no and the propose option is interpreted as
+-yes. Older versions also supported keyword
+-<emphasis remap='B'>insist</emphasis> which is now interpreted as yes.
++<emphasis remap='B'>propose</emphasis>, <emphasis remap='B'>yes</emphasis> or <emphasis remap='B'>permit</emphasis>
++that would allow either IKEv1 or IKEv2, but this is no longer supported and both options
++now cause the connection to fail to load. <emphasis remap='B'>WARNING:</emphasis> This behaviour differs from upstream
++libreswan, which only accepts <emphasis remap='B'>yes</emphasis> or <emphasis remap='B'>no</emphasis> where yes means
++the same as insist.
+ </para>
+   </listitem>
+   </varlistentry>
+diff --git a/lib/libipsecconf/confread.c b/lib/libipsecconf/confread.c
+index b95c90a..e752441 100644
+--- a/lib/libipsecconf/confread.c
++++ b/lib/libipsecconf/confread.c
+@@ -1340,11 +1340,17 @@ static bool load_conn(struct starter_conn *conn,
+ 
+ 		switch (conn->options[KNCF_IKEv2]) {
+ 		case fo_never:
+-		case fo_permit:
+ 			conn->ike_version = IKEv1;
+ 			break;
+ 
++		case fo_permit:
++			starter_error_append(perrl, "ikev2=permit is no longer accepted. Use ikev2=insist or ikev2=no|never");
++			return true;
++
+ 		case fo_propose:
++			starter_error_append(perrl, "ikev2=propose or ikev2=yes is no longer accepted. Use ikev2=insist or ikev2=no|never");
++			return true;
++
+ 		case fo_insist:
+ 			conn->ike_version = IKEv2;
+ 			break;
+diff --git a/programs/whack/whack.c b/programs/whack/whack.c
+index b512b04..3de020e 100644
+--- a/programs/whack/whack.c
++++ b/programs/whack/whack.c
+@@ -815,7 +815,7 @@ static const struct option long_opts[] = {
+ 	{ "ikev1-allow", no_argument, NULL, CD_IKEv1 + OO }, /* obsolete name */
+ 	{ "ikev2", no_argument, NULL, CD_IKEv2 +OO },
+ 	{ "ikev2-allow", no_argument, NULL, CD_IKEv2 +OO }, /* obsolete name */
+-	{ "ikev2-propose", no_argument, NULL, CD_IKEv2 +OO }, /* obsolete, map onto allow */
++	/* not in RHEL8 { "ikev2-propose", no_argument, NULL, CD_IKEv2 +OO }, */
+ 
+ 	PS("allow-narrowing", IKEV2_ALLOW_NARROWING),
+ #ifdef AUTH_HAVE_PAM
+@@ -1802,7 +1802,7 @@ int main(int argc, char **argv)
+ 			end_seen = LEMPTY;
+ 			continue;
+ 
+-		/* --ikev1 --ikev2 --ikev2-propose */
++		/* --ikev1 --ikev2  */
+ 		case CD_IKEv1:
+ 		case CD_IKEv2:
+ 		{
+-- 
+2.39.0
+

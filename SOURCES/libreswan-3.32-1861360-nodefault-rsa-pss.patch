@@ -1,0 +1,31 @@
+From 1dddaa3226fe1b71b68ec9665d93864a5ec69801 Mon Sep 17 00:00:00 2001
+From: rpm-build <rpm-build>
+Date: Mon, 9 Jan 2023 23:26:10 +0900
+Subject: [PATCH] libreswan-3.32-1861360-nodefault-rsa-pss.patch
+
+---
+ lib/libipsecconf/confread.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/lib/libipsecconf/confread.c b/lib/libipsecconf/confread.c
+index 0444118..ec87646 100644
+--- a/lib/libipsecconf/confread.c
++++ b/lib/libipsecconf/confread.c
+@@ -1501,9 +1501,14 @@ static bool load_conn(struct starter_conn *conn,
+ 				   hunk_streq(val, "rsa")) {
+ 				conn->authby.rsasig = true;
+ 				conn->authby.rsasig_v1_5 = true;
++				/*
++				 * These cause failure with RSA 1024 bits because it uses RSA-PSS
++				 */
++#if 0
+ 				conn->sighash_policy |= POL_SIGHASH_SHA2_256;
+ 				conn->sighash_policy |= POL_SIGHASH_SHA2_384;
+ 				conn->sighash_policy |= POL_SIGHASH_SHA2_512;
++#endif
+ 			} else if (hunk_streq(val, "never")) {
+ 				conn->authby.never = true;
+ 			/* everything else is only supported for IKEv2 */
+-- 
+2.39.0
+

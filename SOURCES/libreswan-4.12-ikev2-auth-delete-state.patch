@@ -1,0 +1,54 @@
+From 2ec448884a7467743699803f8a36ee28d237666c Mon Sep 17 00:00:00 2001
+From: Andrew Cagney <cagney@gnu.org>
+Date: Wed, 28 Feb 2024 08:29:53 -0500
+Subject: [PATCH] ikev2: return STF_FATAL when initiator fails to emit AUTH
+ packet
+
+---
+ programs/pluto/ikev2_ike_auth.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/programs/pluto/ikev2_ike_auth.c b/programs/pluto/ikev2_ike_auth.c
+index 192eb1b3b6..a54a109699 100644
+--- a/programs/pluto/ikev2_ike_auth.c
++++ b/programs/pluto/ikev2_ike_auth.c
+@@ -1267,7 +1267,7 @@ static stf_status process_v2_IKE_AUTH_request_auth_signature_continue(struct ike
+ 	/* now send AUTH payload */
+ 
+ 	if (!emit_local_v2AUTH(ike, auth_sig, &ike->sa.st_v2_id_payload.mac, response.pbs)) {
+-		return STF_INTERNAL_ERROR;
++		return STF_FATAL;
+ 	}
+ 	ike->sa.st_v2_ike_intermediate.used = false;
+ 
+-- 
+2.44.0
+
+From 16272f2475d25baab58fbed2af7c67cfb459137f Mon Sep 17 00:00:00 2001
+From: Andrew Cagney <cagney@gnu.org>
+Date: Thu, 29 Feb 2024 12:19:20 -0500
+Subject: [PATCH] ikev2: always return STF_FATAL if emitting AUTH fails
+
+Fix:
+  ikev2: return STF_FATAL when initiator fails to emit AUTH packet
+which really fixed the responder.
+---
+ programs/pluto/ikev2_ike_auth.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/programs/pluto/ikev2_ike_auth.c b/programs/pluto/ikev2_ike_auth.c
+index a54a109699..491053fb10 100644
+--- a/programs/pluto/ikev2_ike_auth.c
++++ b/programs/pluto/ikev2_ike_auth.c
+@@ -397,7 +397,7 @@ stf_status initiate_v2_IKE_AUTH_request_signature_continue(struct ike_sa *ike,
+ 	/* send out the AUTH payload */
+ 
+ 	if (!emit_local_v2AUTH(ike, auth_sig, &ike->sa.st_v2_id_payload.mac, request.pbs)) {
+-		return STF_INTERNAL_ERROR;
++		return STF_FATAL;
+ 	}
+ 
+ 	if (LIN(POLICY_MOBIKE, ike->sa.st_connection->policy)) {
+-- 
+2.44.0
+
