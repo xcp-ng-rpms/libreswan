@@ -1,0 +1,136 @@
+From a2cc5f8c80e8cb9be0b65f8e8544689e8b093c09 Mon Sep 17 00:00:00 2001
+From: rpm-build <rpm-build>
+Date: Tue, 10 Jan 2023 00:18:48 +0900
+Subject: [PATCH] libreswan-4.1-maintain-obsolete-keywords.patch
+
+---
+ lib/libipsecconf/keywords.c | 28 ++++++++++++++++++++++++++++
+ 1 file changed, 28 insertions(+)
+
+diff --git a/lib/libipsecconf/keywords.c b/lib/libipsecconf/keywords.c
+index fa8f0e0..03fb863 100644
+--- a/lib/libipsecconf/keywords.c
++++ b/lib/libipsecconf/keywords.c
+@@ -343,6 +343,8 @@ const struct keyword_def ipsec_conf_keywords[] = {
+   { "ikev1-policy",  kv_config,  kt_enum,  KBF_GLOBAL_IKEv1,  kw_global_ikev1_list, NULL, },
+   { "curl-iface",  kv_config,  kt_string,  KSF_CURLIFACE, NULL, NULL, },
+   { "curl-timeout",  kv_config,  kt_time,  KBF_CURLTIMEOUT_MS, NULL, NULL, },
++  { "curl_iface",  kv_config | kv_alias,  kt_string,  KSF_CURLIFACE, NULL, NULL, },  /* obsolete _ */
++  { "curl_timeout",  kv_config | kv_alias,  kt_time,  KBF_CURLTIMEOUT_MS, NULL, NULL, },  /* obsolete _ */
+ 
+   { "myvendorid",  kv_config,  kt_string,  KSF_MYVENDORID, NULL, NULL, },
+   { "syslog",  kv_config,  kt_string,  KSF_SYSLOG, NULL, NULL, },
+@@ -350,6 +352,7 @@ const struct keyword_def ipsec_conf_keywords[] = {
+   { "logfile",  kv_config,  kt_filename,  KSF_LOGFILE, NULL, NULL, },
+   { "plutostderrlog",  kv_config,  kt_filename,  KSF_LOGFILE, NULL, NULL, }, /* obsolete name, but very common :/ */
+   { "logtime",  kv_config,  kt_bool,  KBF_LOGTIME, NULL, NULL, },
++  { "plutostderrlogtime",  kv_config | kv_alias,  kt_bool,  KBF_LOGTIME, NULL, NULL, },  /* obsolete */
+   { "logappend",  kv_config,  kt_bool,  KBF_LOGAPPEND, NULL, NULL, },
+   { "logip",  kv_config,  kt_bool,  KBF_LOGIP, NULL, NULL, },
+   { "audit-log",  kv_config,  kt_bool,  KBF_AUDIT_LOG, NULL, NULL, },
+@@ -369,13 +372,20 @@ const struct keyword_def ipsec_conf_keywords[] = {
+   { "global-redirect-to", kv_config, kt_string, KSF_GLOBAL_REDIRECT_TO, NULL, NULL, },
+ 
+   { "crl-strict",  kv_config,  kt_bool,  KBF_CRL_STRICT, NULL, NULL, },
++  { "crl_strict",  kv_config | kv_alias,  kt_bool,  KBF_CRL_STRICT, NULL, NULL, },  /* obsolete _ */
+   { "crlcheckinterval",  kv_config,  kt_time,  KBF_CRL_CHECKINTERVAL_MS, NULL, NULL, },
++  { "strictcrlpolicy",  kv_config | kv_alias,  kt_bool,  KBF_CRL_STRICT, NULL, NULL, },  /* obsolete; used on openswan */
+ 
+   { "ocsp-strict",  kv_config,  kt_bool,  KBF_OCSP_STRICT, NULL, NULL, },
++  { "ocsp_strict",  kv_config | kv_alias,  kt_bool,  KBF_OCSP_STRICT, NULL, NULL, },  /* obsolete _ */
+   { "ocsp-enable",  kv_config,  kt_bool,  KBF_OCSP_ENABLE, NULL, NULL, },
++  { "ocsp_enable",  kv_config | kv_alias,  kt_bool,  KBF_OCSP_ENABLE, NULL, NULL, },  /* obsolete _ */
+   { "ocsp-uri",  kv_config,  kt_string,  KSF_OCSP_URI, NULL, NULL, },
++  { "ocsp_uri",  kv_config | kv_alias,  kt_string,  KSF_OCSP_URI, NULL, NULL, },  /* obsolete _ */
+   { "ocsp-timeout",  kv_config,  kt_number,  KBF_OCSP_TIMEOUT, NULL, NULL, },
++  { "ocsp_timeout",  kv_config | kv_alias,  kt_number,  KBF_OCSP_TIMEOUT, NULL, NULL, },  /* obsolete _ */
+   { "ocsp-trustname",  kv_config,  kt_string,  KSF_OCSP_TRUSTNAME, NULL, NULL, },
++  { "ocsp_trust_name",  kv_config | kv_alias,  kt_string,  KSF_OCSP_TRUSTNAME, NULL, NULL, },  /* obsolete _ */
+   { "ocsp-cache-size",  kv_config,  kt_number,  KBF_OCSP_CACHE_SIZE, NULL, NULL, },
+   { "ocsp-cache-min-age",  kv_config,  kt_time,  KBF_OCSP_CACHE_MIN_AGE_MS, NULL, NULL, },
+   { "ocsp-cache-max-age",  kv_config,  kt_time,  KBF_OCSP_CACHE_MAX_AGE_MS, NULL, NULL, },
+@@ -399,6 +409,7 @@ const struct keyword_def ipsec_conf_keywords[] = {
+   { "virtual_private",  kv_config,  kt_string,  KSF_VIRTUALPRIVATE, NULL, NULL, }, /* obsolete variant, very common */
+   { "seedbits",  kv_config,  kt_number,  KBF_SEEDBITS, NULL, NULL, },
+   { "keep-alive",  kv_config,  kt_number,  KBF_KEEPALIVE, NULL, NULL, },
++  { "keep_alive",  kv_config | kv_alias,  kt_number,  KBF_KEEPALIVE, NULL, NULL, },  /* obsolete _ */
+ 
+   { "listen-tcp", kv_config, kt_bool, KBF_LISTEN_TCP, NULL, NULL },
+   { "listen-udp", kv_config, kt_bool, KBF_LISTEN_UDP, NULL, NULL },
+@@ -410,6 +421,8 @@ const struct keyword_def ipsec_conf_keywords[] = {
+ #ifdef HAVE_LABELED_IPSEC
+   { "ikev1-secctx-attr-type",  kv_config,  kt_number,  KBF_SECCTX, NULL, NULL, },  /* obsolete: not a value, a type */
+   { "secctx-attr-type",  kv_config | kv_alias,  kt_number,  KBF_SECCTX, NULL, NULL, },
++  { "secctx_attr_value",  kv_config | kv_alias,  kt_number,  KBF_SECCTX, NULL, NULL, },  /* obsolete _ */
++  { "secctx-attr-value",  kv_config,  kt_number,  KBF_SECCTX, NULL, NULL, },  /* obsolete: not a value, a type */
+ #endif
+   { "interfaces",  kv_config, kt_obsolete, KNCF_WARNIGNORE, NULL, NULL, }, /* obsoleted but often present keyword */
+ 
+@@ -446,6 +459,7 @@ const struct keyword_def ipsec_conf_keywords[] = {
+   { "username",  kv_conn | kv_leftright,  kt_string,  KSCF_USERNAME, NULL, NULL, },
+   /* xauthusername is still used in NetworkManager-libreswan :/ */
+   { "xauthusername",  kv_conn | kv_leftright,  kt_string,  KSCF_USERNAME, NULL, NULL, }, /* old alias */
++  { "xauthname",  kv_conn | kv_leftright,  kt_string,  KSCF_USERNAME, NULL, NULL, }, /* old alias */
+   { "addresspool",  kv_conn | kv_leftright,  kt_range,  KSCF_ADDRESSPOOL, NULL, NULL, },
+   { "auth",  kv_conn | kv_leftright, kt_enum,  KNCF_AUTH,  kw_auth_list, NULL, },
+ #ifdef HAVE_IPTABLES
+@@ -471,6 +485,8 @@ const struct keyword_def ipsec_conf_keywords[] = {
+   { "esn",  kv_conn | kv_processed,  kt_enum,  KNCF_ESN,  kw_esn_list, NULL, },
+   { "decap-dscp",  kv_conn | kv_processed,  kt_bool,  KNCF_DECAP_DSCP,  NULL, NULL, },
+   { "nopmtudisc",  kv_conn | kv_processed,  kt_bool,  KNCF_NOPMTUDISC,  NULL, NULL, },
++  { "ike_frag",  kv_conn | kv_processed | kv_alias,  kt_enum,  KNCF_IKE_FRAG,  kw_ynf_list, NULL, },  /* obsolete _ */
++  { "ike-frag",  kv_conn | kv_processed | kv_alias,  kt_enum,  KNCF_IKE_FRAG,  kw_ynf_list, NULL, },  /* obsolete name */
+   { "fragmentation",  kv_conn | kv_processed,  kt_enum,  KNCF_IKE_FRAG,  kw_ynf_list, NULL, },
+   { "mobike",  kv_conn,  kt_bool,  KNCF_MOBIKE, NULL, NULL, },
+   { "narrowing",  kv_conn,  kt_bool,  KNCF_IKEv2_ALLOW_NARROWING, NULL, NULL, },
+@@ -481,13 +497,18 @@ const struct keyword_def ipsec_conf_keywords[] = {
+   { "accept-redirect-to",  kv_conn,  kt_string, KSCF_ACCEPT_REDIRECT_TO, NULL, NULL, },
+   { "pfs",  kv_conn,  kt_bool,  KNCF_PFS, NULL, NULL, },
+ 
++  { "nat_keepalive",  kv_conn | kv_alias,  kt_bool,  KNCF_NAT_KEEPALIVE, NULL, NULL, },  /* obsolete _ */
+   { "nat-keepalive",  kv_conn,  kt_bool,  KNCF_NAT_KEEPALIVE, NULL, NULL, },
+ 
++  { "initial_contact",  kv_conn | kv_alias,  kt_bool,  KNCF_INITIAL_CONTACT, NULL, NULL, },  /* obsolete _ */
+   { "initial-contact",  kv_conn,  kt_bool,  KNCF_INITIAL_CONTACT, NULL, NULL, },
++  { "cisco_unity",  kv_conn | kv_alias,  kt_bool,  KNCF_CISCO_UNITY, NULL, NULL, },  /* obsolete _ */
+   { "cisco-unity",  kv_conn,  kt_bool,  KNCF_CISCO_UNITY, NULL, NULL, },
+   { "send-no-esp-tfc",  kv_conn,  kt_bool,  KNCF_NO_ESP_TFC, NULL, NULL, },
+   { "fake-strongswan",  kv_conn,  kt_bool,  KNCF_VID_STRONGSWAN, NULL, NULL, },
++  { "send_vendorid",  kv_conn | kv_alias,  kt_bool,  KNCF_SEND_VENDORID, NULL, NULL, },  /* obsolete _ */
+   { "send-vendorid",  kv_conn,  kt_bool,  KNCF_SEND_VENDORID, NULL, NULL, },
++  { "sha2_truncbug",  kv_conn | kv_alias,  kt_bool,  KNCF_SHA2_TRUNCBUG, NULL, NULL, },  /* obsolete _ */
+   { "sha2-truncbug",  kv_conn,  kt_bool,  KNCF_SHA2_TRUNCBUG, NULL, NULL, },
+   { "ms-dh-downgrade",  kv_conn,  kt_bool,  KNCF_MSDH_DOWNGRADE, NULL, NULL, },
+   { "require-id-on-certificate",  kv_conn,  kt_bool,  KNCF_SAN_ON_CERT, NULL, NULL, },
+@@ -505,7 +526,10 @@ const struct keyword_def ipsec_conf_keywords[] = {
+   {"ikepad",  kv_conn,  kt_bool,  KNCF_IKEPAD, NULL, NULL, },
+   { "nat-ikev1-method",  kv_conn | kv_processed,  kt_enum,  KNCF_IKEV1_NATT,  kw_ikev1natt_list, NULL, },
+ 
++  { "labeled_ipsec",  kv_conn, kt_obsolete, KNCF_WARNIGNORE, NULL, NULL, }, /* obsolete */
++  { "labeled-ipsec",  kv_conn, kt_obsolete, KNCF_WARNIGNORE, NULL, NULL, }, /* obsolete */
+   { "policy-label",  kv_conn,  kt_string,  KSCF_SA_SEC_LABEL, NULL, NULL, }, /* obsolete variant */
++  { "policy_label",  kv_conn,  kt_string,  KSCF_SA_SEC_LABEL, NULL, NULL, }, /* obsolete variant */
+   { "sec-label",  kv_conn,  kt_string,  KSCF_SA_SEC_LABEL, NULL, NULL, }, /* really stored into struct end */
+ 
+   /* Cisco interop: remote peer type */
+@@ -516,13 +540,17 @@ const struct keyword_def ipsec_conf_keywords[] = {
+   /* Network Manager support */
+ #ifdef HAVE_NM
+   { "nm-configured",  kv_conn,  kt_bool,  KNCF_NMCONFIGURED, NULL, NULL, },
++  { "nm_configured",  kv_conn,  kt_bool,  KNCF_NMCONFIGURED, NULL, NULL, }, /* obsolete _ */
+ #endif
+ 
+   { "xauthby",  kv_conn,  kt_enum,  KNCF_XAUTHBY,  kw_xauthby_list, NULL, },
+   { "xauthfail",  kv_conn,  kt_enum,  KNCF_XAUTHFAIL,  kw_xauthfail_list, NULL, },
+   { "modecfgpull",  kv_conn,  kt_invertbool,  KNCF_MODECONFIGPULL, NULL, NULL, },
+   { "modecfgdns",  kv_conn,  kt_string,  KSCF_MODECFGDNS, NULL, NULL, },
++  { "modecfgdns1",  kv_conn | kv_alias, kt_string, KSCF_MODECFGDNS, NULL, NULL, }, /* obsolete */
++  { "modecfgdns2",  kv_conn, kt_obsolete, KNCF_WARNIGNORE, NULL, NULL, }, /* obsolete */
+   { "modecfgdomains",  kv_conn,  kt_string,  KSCF_MODECFGDOMAINS, NULL, NULL, },
++  { "modecfgdomain",  kv_conn | kv_alias,  kt_string,  KSCF_MODECFGDOMAINS, NULL, NULL, }, /* obsolete */
+   { "modecfgbanner",  kv_conn,  kt_string,  KSCF_MODECFGBANNER, NULL, NULL, },
+   { "ignore-peer-dns",  kv_conn,  kt_bool,  KNCF_IGNORE_PEER_DNS, NULL, NULL, },
+   { "mark",  kv_conn,  kt_string,  KSCF_CONN_MARK_BOTH, NULL, NULL, },
+-- 
+2.39.0
+
