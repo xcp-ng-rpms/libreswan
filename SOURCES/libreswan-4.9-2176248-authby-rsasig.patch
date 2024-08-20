@@ -1,0 +1,52 @@
+From 000b230258dd272ab15b384c330c31f996d0ba18 Mon Sep 17 00:00:00 2001
+From: Daiki Ueno <dueno@redhat.com>
+Date: Fri, 14 Apr 2023 14:10:47 +0900
+Subject: [PATCH] Ignore system crypto-policies for SHA-1 for legacy
+ authby=rsa-sha1
+
+Signed-off-by: Daiki Ueno <dueno@redhat.com>
+---
+ lib/libswan/pubkey_rsa.c | 24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
+
+diff --git a/lib/libswan/pubkey_rsa.c b/lib/libswan/pubkey_rsa.c
+index 38b44ab61d..9a7c0bc6a8 100644
+--- a/lib/libswan/pubkey_rsa.c
++++ b/lib/libswan/pubkey_rsa.c
+@@ -501,9 +501,33 @@ static struct hash_signature RSA_sign_hash_pkcs1_1_5_rsa(const struct secret_stu
+ 	 * used to generate the signature.
+ 	 */
+ 	SECItem signature_result = {0};
++
++	/* ignore system crypto-policies for the hash algorithm */
++	PRUint32 saved_policy;
++
++	if (NSS_GetAlgorithmPolicy(hash_algo->nss.oid_tag, &saved_policy) != SECSuccess) {
++		/* PR_GetError() returns the thread-local error */
++		enum_buf tb;
++		llog_nss_error(RC_LOG_SERIOUS, logger,
++			       "NSS_SetAlgorithmPolicy(%s) function failed",
++			       str_nss_oid(hash_algo->nss.oid_tag, &tb));
++		return (struct hash_signature) { .len = 0, };
++	}
++
++	if (!(saved_policy & NSS_USE_ALG_IN_SIGNATURE)) {
++		(void)NSS_SetAlgorithmPolicy(hash_algo->nss.oid_tag,
++					     NSS_USE_ALG_IN_SIGNATURE, 0);
++	}
++
+ 	SECStatus s = SGN_Digest(pks->u.pubkey.private_key,
+ 				 hash_algo->nss.oid_tag,
+ 				 &signature_result, &digest);
++
++	if (!(saved_policy & NSS_USE_ALG_IN_SIGNATURE)) {
++		(void)NSS_SetAlgorithmPolicy(hash_algo->nss.oid_tag,
++					     saved_policy, ~saved_policy);
++	}
++
+ 	if (s != SECSuccess) {
+ 		/* PR_GetError() returns the thread-local error */
+ 		enum_buf tb;
+-- 
+2.40.0
+
