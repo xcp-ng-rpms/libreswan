@@ -55,6 +55,9 @@ Patch6: libreswan-4.3-1934186-config.patch
 Patch7: libreswan-4.9-2176248-authby-rsasig.patch
 Patch8: libreswan-4.12-ikev2-auth-delete-state.patch
 
+# XCP-ng patches
+Patch1000: cve-2024-3652.patch
+
 BuildRequires: audit-libs-devel
 BuildRequires: bison
 BuildRequires: curl-devel
@@ -114,6 +117,7 @@ Libreswan is based on Openswan-2.6.38 which in turn is based on FreeS/WAN-2.04
 %patch6 -p1
 %patch7 -p1
 %patch8 -p1
+%patch1000 -p1
 
 # linking to freebl is not needed
 sed -i "s/-lfreebl //" mk/config.mk
@@ -219,9 +223,10 @@ certutil -N -d sql:$tmpdir --empty-password
 %attr(0644,root,root) %doc %{_mandir}/*/*
 
 %changelog
-* Fri Aug 16 2024 David Morel <david.morel@vates.tech> - WIP - 4.12-2.3.1
+* Fri Aug 16 2024 David Morel <david.morel@vates.tech> - 4.12-2.3.1
 - Sync with CentOS 8 Stream version 4.12-2.el8.3
 - Build with GCC 11
+- Include fix for CVE-2024-3652 from Alma 8
 
 * Wed Apr 17 2024 Daiki Ueno <dueno@redhat.com> - 4.12-2.3
 - Bump release to ensure el8 package is greater than el8_* packages
